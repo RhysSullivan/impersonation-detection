@@ -24,7 +24,7 @@ export class ButtonHandler extends InteractionHandler {
 		if (!data) return;
 		const target = await interaction.guild!.members.fetch(data.targetId);
 		if (!target) return;
-		await banImposterUser(target, 'Impersonation - Manually Reported');
+		await banImposterUser(target, 'Impersonation - Auto Detected');
 		interaction.reply({ content: 'User banned.', ephemeral: true });
 		const msg = await makeBanStatusEmbed({
 			detectionMethod: 'Auto',

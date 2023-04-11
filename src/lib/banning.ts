@@ -1,5 +1,5 @@
 import { ActionRowBuilder, EmbedBuilder, GuildMember, MessageActionRowComponentBuilder } from 'discord.js';
-import type { UserImposter } from './detection';
+import { UserImposter, isUserImposter } from './detection';
 import { makeBanButton, makeIgnoreButton } from './buttons';
 
 export async function makeBanStatusEmbed(input: {
@@ -22,27 +22,35 @@ export async function makeBanStatusEmbed(input: {
 		.setFields([
 			{
 				name: 'Status',
-				value: status
+				value: status,
+				inline: true
 			},
 			{
 				name: 'Detection Method',
-				value: detectionMethod
+				value: detectionMethod,
+				inline: true
 			},
 			{
 				name: 'User ID',
-				value: member.id
+				value: member.id,
+				inline: true
 			},
 			{
 				name: 'Name',
-				value: member.user.username
+				value: member.user.username,
+				inline: true
 			},
 			{
 				name: 'Nickname',
-				value: member.nickname ?? 'None'
+				value: member.nickname ?? 'None',
+				inline: true
 			}
 		]);
 	// await member.kick('Same name and avatar as the owner');
-	const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(makeBanButton(member.id), makeIgnoreButton());
+	const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+		makeBanButton(member.id).setDisabled(status !== 'Pending'),
+		makeIgnoreButton().setDisabled(status !== 'Pending')
+	);
 	return {
 		embeds: [embed],
 		components: [buttons]
@@ -75,4 +83,25 @@ export async function toImposterUser(member: GuildMember): Promise<UserImposter>
 
 export async function banImposterUser(member: GuildMember, reason: 'Impersonation - Auto Detected' | 'Impersonation - Manually Reported') {
 	await member.ban({ reason }); // TODO: Doesn't need to be run in sync
+}
+
+export async function autoHandleSusUser(member: GuildMember) {
+	const officialMember = await member.guild.members.fetch('523949187663134754');
+	const official = await toImposterUser(officialMember);
+	const suspect = await toImposterUser(member);
+	const isSus = isUserImposter({
+		official,
+		suspect
+	});
+	if (!isSus) {
+		return;
+	}
+	const notificationChannel = member.guild.channels.cache.get('1095147466866823211');
+	if (!notificationChannel?.isTextBased()) return;
+	const msg = await makeBanStatusEmbed({
+		status: 'Pending',
+		detectionMethod: 'Auto',
+		member
+	});
+	await notificationChannel.send(msg);
 }

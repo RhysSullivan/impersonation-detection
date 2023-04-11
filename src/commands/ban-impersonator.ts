@@ -11,7 +11,7 @@ export class MarkSolution extends Command {
 		registry.registerContextMenuCommand((builder) =>
 			builder
 				.setDMPermission(false)
-				.setName('🔨 Ban Impersonator')
+				.setName('Ban Impersonator')
 				.setType(ApplicationCommandType.User)
 				.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
 		);
