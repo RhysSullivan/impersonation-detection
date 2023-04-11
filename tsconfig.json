@@ -1,9 +1,15 @@
 {
 	"extends": "@sapphire/ts-config",
 	"compilerOptions": {
-		"rootDir": "src",
-		"outDir": "dist",
-		"tsBuildInfoFile": "dist/.tsbuildinfo"
+		"outDir": "./dist",
+		"tsBuildInfoFile": "dist/.tsbuildinfo",
+		"types": [
+			"vitest/globals"
+		],
+		"module": "es2020"
 	},
-	"include": ["src"]
+	"include": [
+		"src",
+		"vitest.config.ts"
+	]
 }

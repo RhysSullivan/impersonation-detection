@@ -2,7 +2,7 @@
   "name": "my-sapphire-bot",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "author": "@sapphire",
+  "type": "module",
   "license": "UNLICENSE",
   "dependencies": {
     "@sapphire/decorators": "^6.0.1",
@@ -11,25 +11,38 @@
     "@sapphire/plugin-logger": "^3.0.3",
     "@sapphire/utilities": "^3.11.1",
     "@skyra/env-utilities": "^1.1.0",
+    "any-ascii": "^0.3.2",
     "colorette": "^2.0.19",
-    "discord.js": "^14.9.0"
+    "discord.js": "^14.9.0",
+    "looks-same": "^8.1.0",
+    "sharp": "^0.32.0",
+    "ssim.js": "^3.5.0",
+    "string-similarity": "^4.0.4"
   },
   "devDependencies": {
     "@sapphire/prettier-config": "^1.4.5",
     "@sapphire/ts-config": "^3.3.4",
+    "@swc/core": "^1.3.49",
     "@types/node": "^18.15.11",
+    "@types/string-similarity": "^4.0.0",
     "@types/ws": "^8.5.4",
+    "dotenv-cli": "^7.2.1",
+    "npm-run-all": "^4.1.5",
     "prettier": "^2.8.7",
     "tsc-watch": "^6.0.0",
-    "typescript": "^4.9.5"
+    "tsup": "^6.7.0",
+    "typescript": "^4.9.5",
+    "vitest": "^0.30.0"
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "start": "node dist/index.js",
-    "dev": "npm run build && npm run start",
-    "watch:start": "tsc-watch --onSuccess \"npm run start\"",
-    "format": "prettier --write \"src/\""
+    "with-env": "dotenv -e ./.env --",
+    "build": "yarn with-env tsup",
+    "watch": "yarn with-env tsup  --silent --watch .",
+    "dev": "yarn with-env rm -rf dist && yarn build && run-p watch start",
+    "start": "yarn with-env node dist/index.js",
+    "format": "prettier --write \"src/\"",
+    "test": "yarn with-env vitest",
+    "test:watch": "yarn with-env vitest --watch"
   },
   "prettier": "@sapphire/prettier-config"
 }
