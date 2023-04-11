@@ -17,6 +17,7 @@ export function namesSimilarScore(official: string, suspect: string) {
 // TODO: Improve this
 export function imagesSimilarScore(official: ServerSideImageData, suspect: ServerSideImageData) {
 	const { mssim } = ssim(official, suspect, {});
+	console.log(mssim);
 	return mssim;
 }
 
@@ -34,5 +35,6 @@ export function isUserImposter(input: { official: UserImposter; suspect: UserImp
 	similarity += suspect.nickname ? namesSimilarScore(official.name, suspect.nickname) : 0;
 	similarity += suspect.nickname && official.nickname ? namesSimilarScore(official.nickname, suspect.nickname) : 0;
 	similarity += imagesSimilarScore(official.avatar, suspect.avatar);
+
 	return similarity > 1;
 }

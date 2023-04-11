@@ -1,6 +1,7 @@
 import { ActionRowBuilder, EmbedBuilder, GuildMember, MessageActionRowComponentBuilder } from 'discord.js';
 import { UserImposter, isUserImposter } from './detection';
 import { makeBanButton, makeIgnoreButton } from './buttons';
+import { NOTIFICATION_CHANNEL_ID, OFFICIAL_USER_ID } from './constants';
 
 export async function makeBanStatusEmbed(input: {
 	status: 'Pending' | 'Banned' | 'Ignored';
@@ -45,7 +46,8 @@ export async function makeBanStatusEmbed(input: {
 				value: member.nickname ?? 'None',
 				inline: true
 			}
-		]);
+		])
+		.setTimestamp();
 	// await member.kick('Same name and avatar as the owner');
 	const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
 		makeBanButton(member.id).setDisabled(status !== 'Pending'),
@@ -82,11 +84,11 @@ export async function toImposterUser(member: GuildMember): Promise<UserImposter>
 }
 
 export async function banImposterUser(member: GuildMember, reason: 'Impersonation - Auto Detected' | 'Impersonation - Manually Reported') {
-	await member.ban({ reason }); // TODO: Doesn't need to be run in sync
+	await member.ban({ reason });
 }
 
 export async function autoHandleSusUser(member: GuildMember) {
-	const officialMember = await member.guild.members.fetch('523949187663134754');
+	const officialMember = await member.guild.members.fetch(OFFICIAL_USER_ID);
 	const official = await toImposterUser(officialMember);
 	const suspect = await toImposterUser(member);
 	const isSus = isUserImposter({
@@ -96,7 +98,7 @@ export async function autoHandleSusUser(member: GuildMember) {
 	if (!isSus) {
 		return;
 	}
-	const notificationChannel = member.guild.channels.cache.get('1095147466866823211');
+	const notificationChannel = member.guild.channels.cache.get(NOTIFICATION_CHANNEL_ID);
 	if (!notificationChannel?.isTextBased()) return;
 	const msg = await makeBanStatusEmbed({
 		status: 'Pending',
