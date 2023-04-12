@@ -1,6 +1,6 @@
 import './lib/setup';
 import { LogLevel, SapphireClient } from '@sapphire/framework';
-import { GatewayIntentBits } from 'discord.js';
+import { GatewayIntentBits, Partials } from 'discord.js';
 
 const client = new SapphireClient({
 	defaultPrefix: '!',
@@ -9,6 +9,7 @@ const client = new SapphireClient({
 		level: LogLevel.Debug
 	},
 	intents: [GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildMessages, GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
+	partials: [Partials.GuildMember],
 	loadMessageCommandListeners: true
 });
 

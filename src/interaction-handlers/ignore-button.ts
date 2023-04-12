@@ -1,6 +1,6 @@
 import { InteractionHandler, InteractionHandlerTypes, PieceContext } from '@sapphire/framework';
 import type { ButtonInteraction } from 'discord.js';
-import { banImposterUser, makeBanStatusEmbed } from '../lib/banning';
+import { makeBanStatusEmbed } from '../lib/banning';
 
 export class ButtonHandler extends InteractionHandler {
 	public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
@@ -14,7 +14,7 @@ export class ButtonHandler extends InteractionHandler {
 		const splitId = interaction.customId.split(':');
 		const buttonName = splitId[0];
 		const targetId = splitId[1];
-		if (buttonName !== 'ban') return this.none();
+		if (buttonName !== 'ignore') return this.none();
 		return this.some({ targetId });
 	}
 
@@ -32,12 +32,11 @@ export class ButtonHandler extends InteractionHandler {
 			interaction.reply({ content: 'You do not have permission to ban members.', ephemeral: true });
 			return;
 		}
-		await banImposterUser(target, 'Impersonation - Auto Detected');
-		interaction.reply({ content: 'User banned.', ephemeral: true });
+		interaction.reply({ content: 'User ignored.', ephemeral: true });
 		const msg = await makeBanStatusEmbed({
 			detectionMethod: 'Auto',
 			member: target,
-			status: 'Banned'
+			status: 'Ignored'
 		});
 		interaction.message.edit(msg);
 	}

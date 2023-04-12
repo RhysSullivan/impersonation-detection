@@ -1,8 +1,9 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events } from '@sapphire/framework';
 import { Listener } from '@sapphire/framework';
-import type { GuildMember } from 'discord.js';
+import type { GuildMember, User } from 'discord.js';
 import { autoHandleSusUser } from '../lib/banning';
+import { OFFICIAL_USER_ID, WATCHING_GUILD_ID } from '../lib/constants';
 
 @ApplyOptions<Listener.Options>({
 	event: Events.GuildMemberAdd,
@@ -10,6 +11,8 @@ import { autoHandleSusUser } from '../lib/banning';
 })
 export class VerifyOnJoin extends Listener<typeof Events.GuildMemberAdd> {
 	public async run(member: GuildMember) {
+		await member.fetch();
+		if (member.id === OFFICIAL_USER_ID) return;
 		await autoHandleSusUser(member);
 	}
 }
@@ -20,6 +23,22 @@ export class VerifyOnJoin extends Listener<typeof Events.GuildMemberAdd> {
 })
 export class VerifyOnUpdate extends Listener<typeof Events.GuildMemberUpdate> {
 	public async run(_: GuildMember, newMember: GuildMember) {
+		await newMember.fetch();
+		if (newMember.id === OFFICIAL_USER_ID) return;
 		await autoHandleSusUser(newMember);
+	}
+}
+
+@ApplyOptions<Listener.Options>({
+	event: Events.UserUpdate,
+	name: 'Verify on user update'
+})
+export class VerifyOnUserUpdate extends Listener<typeof Events.UserUpdate> {
+	public async run(_: User, newUser: User) {
+		const watchingGuild = await this.container.client.guilds.fetch(WATCHING_GUILD_ID);
+		const member = await watchingGuild.members.fetch(newUser.id);
+		await member.fetch();
+		if (member.id === OFFICIAL_USER_ID) return;
+		await autoHandleSusUser(member);
 	}
 }

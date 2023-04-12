@@ -1,7 +1,7 @@
 import { ActionRowBuilder, EmbedBuilder, GuildMember, MessageActionRowComponentBuilder } from 'discord.js';
 import { UserImposter, isUserImposter } from './detection';
 import { makeBanButton, makeIgnoreButton } from './buttons';
-import { NOTIFICATION_CHANNEL_ID, OFFICIAL_USER_ID } from './constants';
+import { NOTIFICATION_CHANNEL_ID, NOTIFICATION_ROLE_ID, OFFICIAL_USER_ID } from './constants';
 
 export async function makeBanStatusEmbed(input: {
 	status: 'Pending' | 'Banned' | 'Ignored';
@@ -14,10 +14,11 @@ export async function makeBanStatusEmbed(input: {
 		extension: 'png',
 		forceStatic: true
 	});
-
+	const text =
+		status === 'Pending' ? `Possible Imposter User Detected` + (NOTIFICATION_ROLE_ID ? ` <@&${NOTIFICATION_ROLE_ID}>` : ``) : 'Imposter Handled';
 	const embed = new EmbedBuilder()
-		.setTitle('Imposter User Auto Detected')
-		.setDescription(`User ${member} is sus`)
+		.setTitle(`Imposter ${status === 'Pending' ? 'Suspected' : status}`)
+		.setDescription(`${member} is kinda sus`)
 		.setImage(avatarUrl)
 		.setColor(status === 'Pending' ? 'Red' : status === 'Banned' ? 'Grey' : 'Green')
 		.setFields([
@@ -34,7 +35,7 @@ export async function makeBanStatusEmbed(input: {
 			{
 				name: 'User ID',
 				value: member.id,
-				inline: true
+				inline: false
 			},
 			{
 				name: 'Name',
@@ -48,20 +49,31 @@ export async function makeBanStatusEmbed(input: {
 			}
 		])
 		.setTimestamp();
-	// await member.kick('Same name and avatar as the owner');
-	const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-		makeBanButton(member.id).setDisabled(status !== 'Pending'),
-		makeIgnoreButton().setDisabled(status !== 'Pending')
-	);
+	const banButton = makeBanButton(member.id);
+	const ignoreButton = makeIgnoreButton(member.id);
+	const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents();
+	switch (status) {
+		case 'Pending':
+			buttons.addComponents(banButton, ignoreButton);
+			break;
+		case 'Banned':
+			buttons.addComponents(banButton.setLabel('Banned').setDisabled(true));
+			break;
+		case 'Ignored':
+			buttons.addComponents(ignoreButton.setLabel('Ignored').setDisabled(true));
+			break;
+	}
+
 	return {
 		embeds: [embed],
+		content: text,
 		components: [buttons]
 	};
 }
 
 export async function toImposterUser(member: GuildMember): Promise<UserImposter> {
 	const avatarUrl = member.user.displayAvatarURL({
-		size: 32,
+		size: 16,
 		extension: 'png',
 		forceStatic: true
 	});
@@ -75,11 +87,11 @@ export async function toImposterUser(member: GuildMember): Promise<UserImposter>
 	return {
 		avatar: {
 			data,
-			height: 32,
-			width: 32
+			height: 16,
+			width: 16
 		},
 		nickname: member.nickname,
-		name: member.nickname ?? member.user.username
+		name: member.user.username
 	};
 }
 
@@ -91,11 +103,12 @@ export async function autoHandleSusUser(member: GuildMember) {
 	const officialMember = await member.guild.members.fetch(OFFICIAL_USER_ID);
 	const official = await toImposterUser(officialMember);
 	const suspect = await toImposterUser(member);
-	const isSus = isUserImposter({
+	const susStats = await isUserImposter({
 		official,
 		suspect
 	});
-	if (!isSus) {
+	console.log('sus stats', susStats);
+	if (susStats.totalSimilarity < 1) {
 		return;
 	}
 	const notificationChannel = member.guild.channels.cache.get(NOTIFICATION_CHANNEL_ID);

@@ -1,5 +1,6 @@
 import { compareTwoStrings } from 'string-similarity';
 import anyAscii from 'any-ascii';
+import Resemble from 'resemblejs';
 import { ssim } from 'ssim.js';
 export declare type ServerSideImageData = {
 	readonly data: Uint8ClampedArray;
@@ -10,15 +11,38 @@ export declare type ServerSideImageData = {
 export function namesSimilarScore(official: string, suspect: string) {
 	const cleanofficial = anyAscii(official).toLowerCase();
 	const cleansuspect = anyAscii(suspect).toLowerCase();
+	console.log(cleanofficial, cleansuspect);
 	const similarity = compareTwoStrings(cleanofficial, cleansuspect);
 	return similarity;
 }
 
 // TODO: Improve this
-export function imagesSimilarScore(official: ServerSideImageData, suspect: ServerSideImageData) {
-	const { mssim } = ssim(official, suspect, {});
-	console.log(mssim);
-	return mssim;
+export async function imagesSimilarScore(official: ServerSideImageData, suspect: ServerSideImageData): Promise<number> {
+	const useMssim = true;
+	if (useMssim) {
+		const { mssim } = ssim(official, suspect, {});
+		return Promise.resolve(mssim);
+	}
+	return new Promise((resolve) => {
+		Resemble({
+			colorSpace: 'srgb',
+			width: official.width,
+			height: official.height,
+			data: official.data
+		})
+			.compareTo({
+				colorSpace: 'srgb',
+				width: suspect.width,
+				height: suspect.height,
+				data: suspect.data
+			})
+			.ignoreAntialiasing()
+			.scaleToSameSize()
+			.onComplete(async (data) => {
+				console.log(data);
+				resolve((100 - data.misMatchPercentage) / 100);
+			});
+	});
 }
 
 export type UserImposter = {
@@ -27,14 +51,22 @@ export type UserImposter = {
 	avatar: ServerSideImageData;
 };
 
-export function isUserImposter(input: { official: UserImposter; suspect: UserImposter }) {
+export async function isUserImposter(input: { official: UserImposter; suspect: UserImposter }) {
 	const { official, suspect } = input;
-	let similarity = 0;
-	similarity += namesSimilarScore(official.name, suspect.name);
-	similarity += official.nickname ? namesSimilarScore(official.nickname, suspect.name) : 0;
-	similarity += suspect.nickname ? namesSimilarScore(official.name, suspect.nickname) : 0;
-	similarity += suspect.nickname && official.nickname ? namesSimilarScore(official.nickname, suspect.nickname) : 0;
-	similarity += imagesSimilarScore(official.avatar, suspect.avatar);
+	const nameToNameSimilarity = namesSimilarScore(official.name, suspect.name);
+	const nameToNicknameSimilarity = official.nickname ? namesSimilarScore(official.nickname, suspect.nickname ?? '') : 0;
+	const nicknameToNameSimilarity = suspect.nickname ? namesSimilarScore(suspect.nickname, official.name) : 0;
+	const nicknameToNicknameSimilarity = official.nickname && suspect.nickname ? namesSimilarScore(official.nickname, suspect.nickname) : 0;
+	const profilePictureSimilarity = await imagesSimilarScore(official.avatar, suspect.avatar);
 
-	return similarity > 1;
+	// Profile picture isn't as accurate as the other ones
+	return {
+		totalSimilarity:
+			nameToNameSimilarity + nameToNicknameSimilarity + nicknameToNameSimilarity + nicknameToNicknameSimilarity + profilePictureSimilarity / 2,
+		nameToNameSimilarity,
+		nameToNicknameSimilarity,
+		nicknameToNameSimilarity,
+		nicknameToNicknameSimilarity,
+		profilePictureSimilarity
+	};
 }

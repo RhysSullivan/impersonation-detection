@@ -3,9 +3,6 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"tsBuildInfoFile": "dist/.tsbuildinfo",
-		"types": [
-			"vitest/globals"
-		],
 		"module": "es2020"
 	},
 	"include": [
