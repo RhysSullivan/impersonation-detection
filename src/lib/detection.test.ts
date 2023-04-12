@@ -1,6 +1,9 @@
 import { namesSimilarScore, imagesSimilarScore, ServerSideImageData } from './detection';
 import { describe, test, expect, it } from 'vitest';
 import { names } from '../../test/names';
+import fs from 'fs';
+import path from 'path';
+
 const target = 'theo';
 
 describe('name-detection', () => {
@@ -51,6 +54,8 @@ describe('name-detection', () => {
 	});
 });
 
+const imageComparisonThreshold = 0.98;
+
 async function loadSharpAsImageData(path: string): Promise<ServerSideImageData> {
 	return {
 		path
@@ -61,26 +66,46 @@ describe('Image detection', () => {
 	it('should detect identical images', async () => {
 		const image = await loadSharpAsImageData('./test/theo.png');
 		const image2 = await loadSharpAsImageData('./test/theo.png');
-		await expect(imagesSimilarScore(image, image2)).resolves.toBeGreaterThan(0.9);
+		await expect(imagesSimilarScore(image, image2)).resolves.toBeGreaterThan(imageComparisonThreshold);
 	});
 	it('should detect kind of similar images', async () => {
 		const image = await loadSharpAsImageData('./test/theo.png');
 		const image2 = await loadSharpAsImageData('./test/theo-v1.png');
-		await expect(imagesSimilarScore(image, image2)).resolves.toBeGreaterThan(0.9);
+		await expect(imagesSimilarScore(image, image2)).resolves.toBeGreaterThan(imageComparisonThreshold);
 	});
 	it('should not detect almost similar images', async () => {
 		const image = await loadSharpAsImageData('./test/theo.png');
 		const image2 = await loadSharpAsImageData('./test/theo-v2.png');
-		await expect(imagesSimilarScore(image, image2)).resolves.toBeGreaterThan(0.9);
+		await expect(imagesSimilarScore(image, image2)).resolves.toBeGreaterThan(imageComparisonThreshold);
 	});
 	it('should detect a blurry image', async () => {
 		const image = await loadSharpAsImageData('./test/theo.png');
 		const image2 = await loadSharpAsImageData('./test/theo-v3.png');
-		await expect(imagesSimilarScore(image, image2)).resolves.toBeGreaterThan(0.9);
+		await expect(imagesSimilarScore(image, image2)).resolves.toBeGreaterThan(imageComparisonThreshold);
 	});
 	it("should not detect images that aren't similar", async () => {
 		const image = await loadSharpAsImageData('./test/theo.png');
 		const image2 = await loadSharpAsImageData('./test/not-theo.png');
-		await expect(imagesSimilarScore(image, image2)).resolves.toBeLessThan(0.9);
+		await expect(imagesSimilarScore(image, image2)).resolves.toBeLessThan(imageComparisonThreshold);
+	});
+	it.skip('should not detect the same for a large set of avatars', async () => {
+		const avatarDir = './test/avatars/pepe';
+
+		const files = await fs.promises.readdir(avatarDir);
+		// Filter out all non-PNG files.
+		const pngFiles = files.filter((file) => path.extname(file).toLowerCase() === '.png');
+
+		for (const file of pngFiles) {
+			const filePath = path.join(avatarDir, file);
+			const score = await imagesSimilarScore(
+				{
+					path: filePath
+				},
+				{
+					path: './test/theo.png'
+				}
+			);
+			expect(score, `${file} is too close to official color`).toBeLessThan(imageComparisonThreshold);
+		}
 	});
 });
