@@ -1,6 +1,7 @@
 import { namesSimilarScore, imagesSimilarScore, ServerSideImageData } from './detection';
 import sharp from 'sharp';
 import { describe, test, expect, it } from 'vitest';
+import { names } from '../../test/names';
 const target = 'theo';
 
 describe('name-detection', () => {
@@ -42,6 +43,11 @@ describe('name-detection', () => {
 		const notSimilar = ['the', 'theodore', 'theodora', 'theodorus', 'theodd'];
 		notSimilar.forEach((name) => {
 			expect(namesSimilarScore(target, name), `${name} should not be similar to ${target}`).toBeLessThan(0.9);
+		});
+	});
+	test('lots of not similar', () => {
+		names.forEach((name) => {
+			expect(namesSimilarScore(target, name), `${name} should not be similar to ${target}`).toBeLessThan(0.7);
 		});
 	});
 });

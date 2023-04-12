@@ -2,6 +2,7 @@ import { ActionRowBuilder, EmbedBuilder, GuildMember, MessageActionRowComponentB
 import { UserImposter, isUserImposter } from './detection';
 import { makeBanButton, makeIgnoreButton } from './buttons';
 import { NOTIFICATION_CHANNEL_ID, NOTIFICATION_ROLE_ID, OFFICIAL_USER_ID } from './constants';
+import fetch from 'node-fetch';
 
 export async function makeBanStatusEmbed(input: {
 	status: 'Pending' | 'Banned' | 'Ignored';
