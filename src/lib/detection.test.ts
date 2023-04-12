@@ -88,6 +88,7 @@ describe('Image detection', () => {
 		const image2 = await loadSharpAsImageData('./test/not-theo.png');
 		await expect(imagesSimilarScore(image, image2)).resolves.toBeLessThan(imageComparisonThreshold);
 	});
+	// TODO: Fix errors when running this test
 	it.skip('should not detect the same for a large set of avatars', async () => {
 		const avatarDir = './test/avatars/pepe';
 

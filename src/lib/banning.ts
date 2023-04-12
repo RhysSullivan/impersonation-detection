@@ -1,7 +1,7 @@
-import { ActionRowBuilder, EmbedBuilder, GuildMember, MessageActionRowComponentBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, GuildMember, MessageActionRowComponentBuilder } from 'discord.js';
 import { UserImposter, isUserImposter } from './detection';
 import { makeBanButton, makeIgnoreButton } from './buttons';
-import { NOTIFICATION_CHANNEL_ID, NOTIFICATION_ROLE_ID, OFFICIAL_USER_ID } from './constants';
+import { NOTIFICATION_CHANNEL_ID, NOTIFICATION_ROLE_ID, OFFICIAL_USER_ID, POSTHOG_DASHBOARD_URL } from './constants';
 import fetch from 'node-fetch';
 import { posthog } from './stat';
 
@@ -49,8 +49,7 @@ export async function makeBanStatusEmbed(input: {
 				value: member.nickname ?? 'None',
 				inline: true
 			}
-		])
-		.setTimestamp();
+		]);
 	const banButton = makeBanButton(member.id);
 	const ignoreButton = makeIgnoreButton(member.id);
 	const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents();
@@ -65,6 +64,10 @@ export async function makeBanStatusEmbed(input: {
 			buttons.addComponents(ignoreButton.setLabel('Ignored').setDisabled(true));
 			break;
 	}
+	if (POSTHOG_DASHBOARD_URL)
+		buttons.addComponents(
+			new ButtonBuilder().setURL(POSTHOG_DASHBOARD_URL).setLabel('Detection Stats').setStyle(ButtonStyle.Link).setEmoji('📊')
+		);
 
 	return {
 		embeds: [embed],
