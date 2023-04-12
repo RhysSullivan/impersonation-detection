@@ -3,6 +3,7 @@ import { UserImposter, isUserImposter } from './detection';
 import { makeBanButton, makeIgnoreButton } from './buttons';
 import { NOTIFICATION_CHANNEL_ID, NOTIFICATION_ROLE_ID, OFFICIAL_USER_ID } from './constants';
 import fetch from 'node-fetch';
+import { posthog } from './stat';
 
 export async function makeBanStatusEmbed(input: {
 	status: 'Pending' | 'Banned' | 'Ignored';
@@ -119,5 +120,14 @@ export async function autoHandleSusUser(member: GuildMember) {
 		detectionMethod: 'Auto',
 		member
 	});
+	posthog.capture({
+		distinctId: member.id,
+		event: 'Suspected Imposter Detected',
+		properties: {
+			...susStats,
+			guildId: member.guild.id
+		}
+	});
+
 	await notificationChannel.send(msg);
 }

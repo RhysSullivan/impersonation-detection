@@ -1,6 +1,7 @@
 import { InteractionHandler, InteractionHandlerTypes, PieceContext } from '@sapphire/framework';
 import type { ButtonInteraction } from 'discord.js';
-import { makeBanStatusEmbed } from '../lib/banning';
+import { makeBanStatusEmbed, toImposterUser } from '../lib/banning';
+import { posthog } from '../lib/stat';
 
 export class ButtonHandler extends InteractionHandler {
 	public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
@@ -37,6 +38,21 @@ export class ButtonHandler extends InteractionHandler {
 			detectionMethod: 'Auto',
 			member: target,
 			status: 'Ignored'
+		});
+		const stats = await toImposterUser(target);
+		posthog.capture({
+			distinctId: target.id,
+			event: 'Ignored',
+			properties: {
+				by: interaction.user.id,
+				detectionMethod: 'Auto',
+				guildId: interaction.guild!.id,
+				guildName: interaction.guild!.name,
+				targetId: target.id,
+				targetName: target.user.tag,
+				targetAvatar: target.user.displayAvatarURL({ forceStatic: true, size: 32 }),
+				...stats
+			}
 		});
 		interaction.message.edit(msg);
 	}

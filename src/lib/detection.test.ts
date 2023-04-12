@@ -1,5 +1,4 @@
 import { namesSimilarScore, imagesSimilarScore, ServerSideImageData } from './detection';
-import sharp from 'sharp';
 import { describe, test, expect, it } from 'vitest';
 import { names } from '../../test/names';
 const target = 'theo';
@@ -53,13 +52,8 @@ describe('name-detection', () => {
 });
 
 async function loadSharpAsImageData(path: string): Promise<ServerSideImageData> {
-	const raw = await sharp(path).raw().toBuffer({
-		resolveWithObject: true
-	});
 	return {
-		data: new Uint8ClampedArray(raw.data),
-		height: raw.info.height,
-		width: raw.info.width
+		path
 	};
 }
 
