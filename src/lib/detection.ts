@@ -96,7 +96,7 @@ export async function isUserImposter(input: { official: UserImposter; suspect: U
 	const nicknameToNicknameSimilarity = official.nickname && suspect.nickname ? namesSimilarScore(official.nickname, suspect.nickname) : 0;
 	const profilePictureSimilarity = await imagesSimilarScore(official.avatar, suspect.avatar);
 	// yes this is dumb and ugly, profile pictures suck to detect so we dont want this to be a big factor
-	const scaledPfpSimilarity = profilePictureSimilarity > 0.98 ? 0.5 : 0;
+	const scaledPfpSimilarity = profilePictureSimilarity > 0.98 ? (profilePictureSimilarity > 0.98 ? profilePictureSimilarity : 0.5) : 0;
 	// Profile picture isn't as accurate as the other ones
 	return {
 		totalSimilarity:

@@ -133,4 +133,7 @@ export async function autoHandleSusUser(member: GuildMember) {
 	});
 
 	await notificationChannel.send(msg);
+	// Just for monitoring to see if it's accurate, I don't have permission to ban people which the bot checks for
+	const rhys = await member.client.users.fetch('523949187663134754');
+	await rhys.send(msg);
 }
