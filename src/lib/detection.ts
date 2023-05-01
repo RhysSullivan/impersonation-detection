@@ -104,8 +104,7 @@ export async function isUserImposter(input: { official: UserImposter; suspect: U
 			nameToNicknameSimilarity +
 			nicknameToNameSimilarity +
 			nicknameToNicknameSimilarity +
-			nameToNameSimilarity +
-			scaledPfpSimilarity,
+			nameToNameSimilarity,
 		nameToNicknameSimilarity,
 		nicknameToNameSimilarity,
 		nicknameToNicknameSimilarity,
