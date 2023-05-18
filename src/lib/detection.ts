@@ -99,12 +99,7 @@ export async function isUserImposter(input: { official: UserImposter; suspect: U
 	const scaledPfpSimilarity = profilePictureSimilarity > 0.98 ? (profilePictureSimilarity > 0.98 ? profilePictureSimilarity : 0.5) : 0;
 	// Profile picture isn't as accurate as the other ones
 	return {
-		totalSimilarity:
-			nameToNameSimilarity +
-			nameToNicknameSimilarity +
-			nicknameToNameSimilarity +
-			nicknameToNicknameSimilarity +
-			nameToNameSimilarity,
+		totalSimilarity: 0,
 		nameToNicknameSimilarity,
 		nicknameToNameSimilarity,
 		nicknameToNicknameSimilarity,
