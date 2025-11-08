@@ -19,7 +19,8 @@ export function namesSimilarScore(official: string, suspect: string) {
 	const cleansuspect = anyAscii(suspect).toLowerCase();
 	console.log(cleanofficial, cleansuspect);
 	const similarity = compareTwoStrings(cleanofficial, cleansuspect);
-	return similarity;
+	// Improved normalization
+	return Math.max(0, Math.min(1, similarity));
 }
 
 function colorDifference(color1: string, color2: string): number {
