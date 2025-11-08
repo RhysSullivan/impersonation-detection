@@ -45,3 +45,11 @@ function getGuildInfo(guild: Guild | null) {
 	if (guild === null) return 'Direct Messages';
 	return `${guild.name}[${cyan(guild.id)}]`;
 }
+
+export function validateInput(input: unknown): boolean {
+	return typeof input === 'string' && input.length > 0;
+}
+
+export function sanitizeString(input: string): string {
+	return input.trim().replace(/[<>]/g, '');
+}
