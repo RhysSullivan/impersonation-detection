@@ -88,7 +88,13 @@ export type UserImposter = {
 };
 
 // yes this is dumb and ugly, so am i
-export async function isUserImposter(input: { official: UserImposter; suspect: UserImposter }) {
+export async function isUserImposter(input: { official: UserImposter; suspect: UserImposter }): Promise<{
+	totalSimilarity: number;
+	nameToNicknameSimilarity: number;
+	nicknameToNameSimilarity: number;
+	nicknameToNicknameSimilarity: number;
+	profilePictureSimilarity: number;
+}> {
 	const { official, suspect } = input;
 	const nameToNicknameSimilarity = official.nickname ? namesSimilarScore(official.nickname, suspect.nickname ?? '') : 0;
 	const nicknameToNameSimilarity = suspect.nickname ? namesSimilarScore(suspect.nickname, official.name) : 0;
