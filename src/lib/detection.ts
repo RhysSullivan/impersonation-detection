@@ -15,6 +15,7 @@ export declare type ServerSideImageData = {} & (
 );
 
 export function namesSimilarScore(official: string, suspect: string) {
+	if (!official || !suspect) return 0;
 	const cleanofficial = anyAscii(official).toLowerCase();
 	const cleansuspect = anyAscii(suspect).toLowerCase();
 	console.log(cleanofficial, cleansuspect);
