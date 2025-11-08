@@ -13,16 +13,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: '20'
       
       - name: Install dependencies
-        run: bun install
+        run: yarn install --frozen-lockfile
       
       - name: Run tests
-        run: bun test
+        run: yarn test --run
+        env:
+          NOTIFICATION_CHANNEL_ID: test
+          OFFICIAL_USER_ID: test
+          WATCHING_GUILD_ID: test
       
       - name: Type check
-        run: bunx tsc --noEmit
+        run: yarn tsc --noEmit
+
+
