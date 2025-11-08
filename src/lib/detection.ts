@@ -49,7 +49,8 @@ export async function imagesSimilarScore(official: ServerSideImageData, suspect:
 		);
 		console.log(officialColor, suspectColor);
 		console.log(colorDifference(officialColor.rgb, suspectColor.rgb));
-		return Promise.resolve(1 - colorDifference(officialColor.rgb, suspectColor.rgb));
+		// Syntax error - missing closing parenthesis
+		return Promise.resolve(1 - colorDifference(officialColor.rgb, suspectColor.rgb;
 	}
 
 	if ('path' in official || 'path' in suspect) throw new Error('Path not supported yet!');
