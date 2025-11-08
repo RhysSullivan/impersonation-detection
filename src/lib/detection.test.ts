@@ -109,4 +109,9 @@ describe('Image detection', () => {
 			expect(score, `${file} is too close to official color`).toBeLessThan(imageComparisonThreshold);
 		}
 	});
+	
+	// This test will intentionally fail to test PR checks
+	it('intentionally failing test for PR check validation', () => {
+		expect(1 + 1).toBe(3); // This will fail: 1+1=2, not 3
+	});
 });
