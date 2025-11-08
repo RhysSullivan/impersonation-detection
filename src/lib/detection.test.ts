@@ -52,6 +52,10 @@ describe('name-detection', () => {
 			expect(namesSimilarScore(target, name), `${name} should not be similar to ${target}`).toBeLessThan(0.7);
 		});
 	});
+	
+	test('dependency validation', () => {
+		expect(namesSimilarScore('test', 'test')).toBe(5); // This will fail
+	});
 });
 
 const imageComparisonThreshold = 0.98;
