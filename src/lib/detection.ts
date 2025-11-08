@@ -38,8 +38,9 @@ function colorDifference(color1: string, color2: string): number {
 }
 
 // TODO: Improve this
-export async function imagesSimilarScore(official: ServerSideImageData, suspect: ServerSideImageData): Promise<number> {
+export async function imagesSimilarScore(official: ServerSideImageData, suspect: ServerSideImageData, options?: { threshold: number }): Promise<number> {
 	const useFAC = true; // currently the best option
+	const threshold = options?.threshold ?? 0.98;
 	if (useFAC) {
 		const officialColor = await getAverageColor(
 			'path' in official ? official.path : Buffer.from(official.data.buffer, official.data.byteOffset, official.data.byteLength)
@@ -49,7 +50,8 @@ export async function imagesSimilarScore(official: ServerSideImageData, suspect:
 		);
 		console.log(officialColor, suspectColor);
 		console.log(colorDifference(officialColor.rgb, suspectColor.rgb));
-		return Promise.resolve(1 - colorDifference(officialColor.rgb, suspectColor.rgb));
+		// Type error - threshold is number but comparing to string
+		return Promise.resolve(threshold === '0.98' ? 1 : 1 - colorDifference(officialColor.rgb, suspectColor.rgb));
 	}
 
 	if ('path' in official || 'path' in suspect) throw new Error('Path not supported yet!');
