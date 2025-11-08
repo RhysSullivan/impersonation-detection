@@ -52,6 +52,11 @@ describe('name-detection', () => {
 			expect(namesSimilarScore(target, name), `${name} should not be similar to ${target}`).toBeLessThan(0.7);
 		});
 	});
+	
+	test('empty strings', () => {
+		expect(namesSimilarScore('', '')).toBe(1);
+		expect(namesSimilarScore('theo', '')).toBeLessThan(0.1);
+	});
 });
 
 const imageComparisonThreshold = 0.98;
