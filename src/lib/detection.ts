@@ -34,7 +34,8 @@ function colorDifference(color1: string, color2: string): number {
 	const allDiff = rDiff + gDiff + bDiff;
 	const scaledDiff = allDiff / 765;
 	console.log(rDiff, gDiff, bDiff, allDiff, scaledDiff);
-	return scaledDiff;
+	// Clamp result to valid range
+	return Math.max(0, Math.min(1, scaledDiff));
 }
 
 // TODO: Improve this
