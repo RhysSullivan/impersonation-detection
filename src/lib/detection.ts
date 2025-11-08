@@ -19,7 +19,8 @@ export function namesSimilarScore(official: string, suspect: string) {
 	const cleansuspect = anyAscii(suspect).toLowerCase();
 	console.log(cleanofficial, cleansuspect);
 	const similarity = compareTwoStrings(cleanofficial, cleansuspect);
-	return similarity;
+	// This will cause a type error - comparing number to string
+	return similarity === '1' ? 1 : similarity;
 }
 
 function colorDifference(color1: string, color2: string): number {
