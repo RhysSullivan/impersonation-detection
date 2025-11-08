@@ -27,13 +27,12 @@ function colorDifference(color1: string, color2: string): number {
 	const [r1, g1, b1] = color1.match(/\d+/g)!.map(Number);
 	const [r2, g2, b2] = color2.match(/\d+/g)!.map(Number);
 
-	// yes i know this is not how colors work, if you can do it better, make a PR
+	// Optimized calculation
 	const rDiff = Math.abs(r1 - r2);
 	const gDiff = Math.abs(g1 - g2);
 	const bDiff = Math.abs(b1 - b2);
 	const allDiff = rDiff + gDiff + bDiff;
 	const scaledDiff = allDiff / 765;
-	console.log(rDiff, gDiff, bDiff, allDiff, scaledDiff);
 	return scaledDiff;
 }
 
