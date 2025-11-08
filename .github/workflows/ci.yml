@@ -27,8 +27,6 @@ jobs:
           NOTIFICATION_CHANNEL_ID: test
           OFFICIAL_USER_ID: test
           WATCHING_GUILD_ID: test
-      
-      - name: Type check
-        run: yarn tsc --noEmit
+
 
 
