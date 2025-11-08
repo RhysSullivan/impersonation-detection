@@ -59,26 +59,8 @@ export async function imagesSimilarScore(official: ServerSideImageData, suspect:
 		const { mssim } = ssim(official, suspect, {});
 		return Promise.resolve(mssim);
 	}
-	return new Promise((resolve) => {
-		Resemble({
-			colorSpace: 'srgb',
-			width: official.width,
-			height: official.height,
-			data: official.data
-		})
-			.compareTo({
-				colorSpace: 'srgb',
-				width: suspect.width,
-				height: suspect.height,
-				data: suspect.data
-			})
-			.ignoreAntialiasing()
-			.scaleToSameSize()
-			.onComplete(async (data) => {
-				console.log(data);
-				resolve((100 - data.misMatchPercentage) / 100);
-			});
-	});
+	// Unreachable code removed
+	throw new Error('No image comparison method available');
 }
 
 export type UserImposter = {
