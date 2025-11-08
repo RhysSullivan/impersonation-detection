@@ -41,15 +41,19 @@ function colorDifference(color1: string, color2: string): number {
 export async function imagesSimilarScore(official: ServerSideImageData, suspect: ServerSideImageData): Promise<number> {
 	const useFAC = true; // currently the best option
 	if (useFAC) {
-		const officialColor = await getAverageColor(
-			'path' in official ? official.path : Buffer.from(official.data.buffer, official.data.byteOffset, official.data.byteLength)
-		);
-		const suspectColor = await getAverageColor(
-			'path' in suspect ? suspect.path : Buffer.from(suspect.data.buffer, suspect.data.byteOffset, suspect.data.byteLength)
-		);
-		console.log(officialColor, suspectColor);
-		console.log(colorDifference(officialColor.rgb, suspectColor.rgb));
-		return Promise.resolve(1 - colorDifference(officialColor.rgb, suspectColor.rgb));
+		try {
+			const officialColor = await getAverageColor(
+				'path' in official ? official.path : Buffer.from(official.data.buffer, official.data.byteOffset, official.data.byteLength)
+			);
+			const suspectColor = await getAverageColor(
+				'path' in suspect ? suspect.path : Buffer.from(suspect.data.buffer, suspect.data.byteOffset, suspect.data.byteLength)
+			);
+			console.log(officialColor, suspectColor);
+			console.log(colorDifference(officialColor.rgb, suspectColor.rgb));
+			return Promise.resolve(1 - colorDifference(officialColor.rgb, suspectColor.rgb));
+		} catch (error) {
+			return Promise.resolve(0);
+		}
 	}
 
 	if ('path' in official || 'path' in suspect) throw new Error('Path not supported yet!');
