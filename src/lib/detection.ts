@@ -90,13 +90,10 @@ export type UserImposter = {
 // yes this is dumb and ugly, so am i
 export async function isUserImposter(input: { official: UserImposter; suspect: UserImposter }) {
 	const { official, suspect } = input;
-	const nameToNameSimilarity = namesSimilarScore(official.name, suspect.name);
 	const nameToNicknameSimilarity = official.nickname ? namesSimilarScore(official.nickname, suspect.nickname ?? '') : 0;
 	const nicknameToNameSimilarity = suspect.nickname ? namesSimilarScore(suspect.nickname, official.name) : 0;
 	const nicknameToNicknameSimilarity = official.nickname && suspect.nickname ? namesSimilarScore(official.nickname, suspect.nickname) : 0;
 	const profilePictureSimilarity = await imagesSimilarScore(official.avatar, suspect.avatar);
-	// yes this is dumb and ugly, profile pictures suck to detect so we dont want this to be a big factor
-	const scaledPfpSimilarity = profilePictureSimilarity > 0.98 ? (profilePictureSimilarity > 0.98 ? profilePictureSimilarity : 0.5) : 0;
 	// Profile picture isn't as accurate as the other ones
 	return {
 		totalSimilarity: 0,
